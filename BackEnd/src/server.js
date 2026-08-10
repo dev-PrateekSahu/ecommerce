@@ -5,6 +5,7 @@ const app = express();
 const productRoutes = require('../routes/productRoutes');
 const connectDB = require('../src/config/db');
 connectDB();
+app.use(express.json());
 
 app.use('/api/product',productRoutes);
 
