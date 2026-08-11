@@ -2,12 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
-const productRoutes = require('../routes/productRoutes');
-const connectDB = require('../src/config/db');
+const productRoutes = require('./routes/productRoutes');
+const connectDB = require('./config/db');
 connectDB();
 app.use(express.json());
 
-app.use('/api/product',productRoutes);
+const errorMiddleware = require('./middlewares/errorMiddleware');
+
+
+app.use('/api/products',productRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({
@@ -16,7 +19,7 @@ app.get("/api/health", (req, res) => {
     });
 });
 
-
+app.use(errorMiddleware);
 
 
 app.listen(3000,()=>{
