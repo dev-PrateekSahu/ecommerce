@@ -3,10 +3,10 @@ const AppError = require("../utils/AppError");
 
 const isAdmin = asyncHandler(async (req,res,next)=>{
     const user = req.user;
-    if(user.role=='admin'){
-        return next();
+    if (req.user.role !== "admin") {
+        throw new AppError("Admin access required", 403);
     }
-    throw new AppError("You are authenticated, but you're not allowed to do this",403);
+    next();
 });
 
 module.exports = isAdmin;

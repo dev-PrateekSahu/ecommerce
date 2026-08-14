@@ -11,26 +11,24 @@ const addToCart = asyncHandler(async(req,res)=>{
         throw new AppError("Product doesn't exist",400);
     }
     const stock = product.stock;
+    if(quantity>stock){
+        throw new AppError("Out of stock", 400);
+    }
     const cart = await Cart.findOne({user:userId});
     if(!cart){
         const createdCart = await Cart.create({
-            user:userId
-        });
-        if(stock>=quantity){
-            createdCart.items.push({
-                product:productId,
+            user: userId,
+            items: [{
+                product: productId,
                 quantity
-            });
-            await createdCart.save();
-            res.status(200).json({
-                success: true,
-                message: "Product added to cart"
-            });
-        }else{
-            throw new AppError("Out of stock",400);
-        }
+            }]
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Product added to cart"
+        });
     }else{
-        const item = cart.items.find(item=>item.product==productId);
+        const item = cart.items.find(item=>item.product.toString()==productId.toString());
         if(item==undefined){
             if(stock>=quantity){
                 cart.items.push({
@@ -85,7 +83,7 @@ const updateCart = asyncHandler(async(req,res)=>{
     if(!cart){
         throw new AppError("Cart not found",404);
     }
-    const alreadyExist = cart.items.find(item=>item.product==productId);
+    const alreadyExist = cart.items.find(item=>item.product.toString()==productId.toString());
     if(!alreadyExist){
         throw new AppError("Product not found",404);
     }
@@ -93,7 +91,7 @@ const updateCart = asyncHandler(async(req,res)=>{
     const stock = product.stock;
     if(quantity<=stock){
         if(quantity==0){
-            const index = cart.items.findIndex(item=>item.product==productId);
+            const index = cart.items.findIndex(item=>item.product.toString()==productId.toString());
             cart.items.splice(index,1);
         }else{
             alreadyExist.quantity = quantity;
@@ -114,7 +112,9 @@ const deleteCart = asyncHandler(async (req,res)=>{
         throw new AppError("Cart doesn't exist",404);
     }
 
-    const index = cart.items.findIndex(item=>item.product==req.params.id)
+    const index = cart.items.findIndex(
+        item => item.product.toString() === req.params.id.toString()
+    );
     if(index==-1){
         throw new AppError("Product isn't in cart",400);
     }

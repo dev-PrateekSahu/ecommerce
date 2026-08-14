@@ -1,33 +1,19 @@
-require('dotenv').config();
-const express = require('express');
-const app = express();
-
-const productRoutes = require('./routes/productRoutes');
+const app = require('./app');
 const connectDB = require('./config/db');
-connectDB();
-app.use(express.json());
 
-const errorMiddleware = require('./middlewares/errorMiddleware');
-const authRoutes = require('./routes/authRoutes');
+const PORT = process.env.PORT || 3000;
 
-app.use('/api/auth',authRoutes);
-app.use('/api/products',productRoutes);
+const startServer = async () => {
+    try {
+        await connectDB();
 
-const cartRoutes = require('./routes/cartRoutes');
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
 
-app.use('/api/cart',cartRoutes);
-
-app.get("/api/health", (req, res) => {
-    res.json({
-        success: true,
-        message: "Server is running"
-    });
-});
-
-app.use(errorMiddleware);
-
-
-app.listen(3000,()=>{
-    console.log(`Server is running on port `);
-    
-});
+startServer();

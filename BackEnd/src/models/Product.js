@@ -22,6 +22,11 @@ const productSchema = new mongoose.Schema(
             type: Number,
             required: true,
             min: 0
+        },
+        seller: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
         }
     },
     {
